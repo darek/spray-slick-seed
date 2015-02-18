@@ -1,0 +1,58 @@
+package api
+
+import domain.Todo
+import domain.Item
+import helper._
+import service.TodoFormats
+import spec.ApiSpec
+import spray.http.StatusCodes._
+
+/**
+ * Created by darek on 18.02.15.
+ */
+class TodoApiSpec extends ApiSpec with TodoFormats {
+
+  "TodoApi" should {
+
+    "Return Todo list when adding list" in {
+      val todoList = Todo(None, TodoHelper.randomString(10))
+      Post("/todo", todoList) ~> routes ~> check {
+        val todo = responseAs[Todo]
+
+        status must be(Created)
+        todo.name must beEqualTo(todoList.name)
+        todo.id must not be (None)
+      }
+    }
+
+    "Return Item when adding item to List" in {
+      val todoList = TodoHelper.addTodo(Todo(None, TodoHelper.randomString(10)))
+      val item = Item(None, None, TodoHelper.randomString(10))
+      Post(s"/todo/${todoList.id.get}", item) ~> routes ~> check {
+        val item = responseAs[Item]
+        status must be(Created)
+        item.label must beEqualTo(item.label)
+        item.list must beEqualTo(todoList.id)
+        item.id must not be (None)
+      }
+    }
+
+    "Return Items list" in {
+      val todoList = TodoHelper.createRandomList(5)
+      Get(s"/todo/${todoList.id.get}") ~> routes ~> check {
+        status must be(OK)
+        val itemsList = responseAs[List[Item]]
+        itemsList must have size (5)
+      }
+    }
+
+    "Return NotFound when getting unknown list" in {
+      Get(s"/todo/9999") ~> sealRoute(routes) ~> check {
+        status must be(NotFound)
+        responseAs[String] must contain("List does not exists")
+      }
+    }
+
+  }
+
+}

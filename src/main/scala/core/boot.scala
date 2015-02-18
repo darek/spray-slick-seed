@@ -45,7 +45,7 @@ trait BootSystem {
   implicit val timeout: Timeout = Timeout(startupTimeout, TimeUnit.SECONDS)
 
   /**
-   * Initialize database
+   * Initialize database, propagate schema
    */
   DatabaseCfg.init()
 
@@ -53,6 +53,6 @@ trait BootSystem {
   Await.ready(application ? Startup(), timeout.duration)
 
   actorSystem.registerOnTermination {
-    application ! Shutdown();
+    application ! Shutdown()
   }
 }

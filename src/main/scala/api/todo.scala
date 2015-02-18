@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.pattern.ask
 import core.DefaultTimeout
 import domain.{ Item, Todo }
-import service.{ TodoFormats, CreateTodoList }
+import service._
 import spray.http.StatusCodes
 import spray.routing.Directives
 
@@ -22,25 +22,24 @@ class TodoApi(implicit val actorSystem: ActorSystem) extends Directives with Def
       post {
         respondWithStatus(StatusCodes.Created) {
           handleWith { todo: Todo =>
-            println(s"TODO $todo")
             (todoActor ? CreateTodoList(todo)).mapTo[Todo]
           }
         }
       }
-    } /* ~
-    path( "todo" / IntNumber ) { listId =>
+    } ~
+      path("todo" / IntNumber) { listId =>
         get {
-
+          complete {
+            (todoActor ? GetItemsList(listId)).mapTo[Either[UnknownTodoList, List[Item]]]
+          }
         } ~
-        post {
-
-        } ~
-        put {
-
-        } ~
-        delete {
-
-        }
-    } */
+          post {
+            respondWithStatus(StatusCodes.Created) {
+              handleWith { item: Item =>
+                (todoActor ? InsertItem(item.copy(list = Some(listId)))).mapTo[Item]
+              }
+            }
+          }
+      }
 
 }

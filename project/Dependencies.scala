@@ -8,8 +8,9 @@ object Version {
   val c3p0           = "0.9.1.2"
   val h2Driver       = "1.4.185"
   val scalaTest      = "2.2.4"
-  val spec2          = "2.4.16-scalaz-7.0.6"
+  val spec2          = "2.4.9-scalaz-7.0.6"
   val typesafeConfig = "1.2.1"
+  val lockback       = "1.1.2"
 }
 
 object Library {
@@ -27,6 +28,7 @@ object Library {
   val akkaTestKit    = "com.typesafe.akka"  %%  "akka-testkit"   % Version.akka  % "test"
   val sprayTestKit   = "io.spray"           %%  "spray-testkit"  % Version.spray % "test"
   val spec2          = "org.specs2"         %%  "specs2"         % Version.spec2 % "test"
+  val lockback       = "ch.qos.logback"     % "logback-classic"  % Version.lockback
 
 }
 
@@ -48,6 +50,7 @@ object Dependencies {
     h2Database,
     akkaTestKit,
     sprayTestKit,
-    spec2
+    spec2,
+    lockback
   )
 }

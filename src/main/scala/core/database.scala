@@ -1,26 +1,29 @@
 package core
 
-import com.typesafe.config.ConfigFactory
-import com.mchange.v2.c3p0.ComboPooledDataSource
 import domain.{ Items, Todos }
-import scala.slick.driver.H2Driver
 import scala.slick.driver.H2Driver.simple._
+import scala.slick.jdbc.meta.MTable
+
 /**
  * Created by darek on 17.02.15.
  */
 object DatabaseCfg {
 
-  //val pooledDataSource = new ComboPooledDataSource
-  val db = Database.forURL("jdbc:h2:mem:todo-list"); //forDataSource(pooledDataSource)
+  val db = Database.forURL("jdbc:h2:mem:todo-list;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1"); //forDataSource(pooledDataSource)
 
   // create TableQueries for all tables
   val todosTable: TableQuery[Todos] = TableQuery[Todos]
   val itemsTable: TableQuery[Items] = TableQuery[Items]
 
+  // Initialize database if tables does not exists
   def init() = {
-    db.withSession { implicit session =>
-      println("Creating schema")
-      (todosTable.ddl ++ itemsTable.ddl).create
+    db.withTransaction { implicit session =>
+      if (MTable.getTables("Todo").list.isEmpty) {
+        todosTable.ddl.create
+      }
+      if (MTable.getTables("Item").list.isEmpty) {
+        itemsTable.ddl.create
+      }
     }
   }
 }
