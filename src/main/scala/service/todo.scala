@@ -15,6 +15,7 @@ import scala.slick.driver.H2Driver.simple._
 case class CreateTodoList(todo: Todo)
 case class GetItemsList(listId: Int)
 case class InsertItem(item: Item)
+case class DeleteItem(listId: Int, itemId: Int)
 
 class TodoActor extends Actor with TodoActions {
   def receive: Receive = {
@@ -26,6 +27,9 @@ class TodoActor extends Actor with TodoActions {
 
     case InsertItem(item) =>
       sender ! insertItem(item)
+
+    case DeleteItem(listId, itemId) =>
+      sender ! deleteItem(listId, itemId)
   }
 }
 
@@ -44,7 +48,7 @@ trait TodoActions {
     }
   }
 
-  def getItemsList(listId: Int): Either[UnknownTodoList, List[Item]] = {
+  def getItemsList(listId: Int): Either[TodoListOperationError, List[Item]] = {
     db.withSession { implicit session =>
       getTodo(listId) match {
         case Some(list) => Right(itemsTable.filter(item => item.list === listId).list)
@@ -59,16 +63,34 @@ trait TodoActions {
       item.copy(id = Some(itemId.toInt))
     }
   }
+
+  /**
+   * This action is not Yet implemented, You can try to implement it
+   */
+  def deleteItem(todoListId: Int, itemId: Int): Either[TodoListOperationError, Int] = {
+    Left(OperationNotSupported("delete"))
+  }
 }
 
-case class UnknownTodoList()
+trait TodoListOperationError
+case class UnknownTodoList() extends TodoListOperationError
+case class OperationNotSupported(opName: String) extends TodoListOperationError
 
 trait TodoFormats extends Marshalling with ProductFormats {
+  import spray.json._
 
   implicit val TodoFormat = jsonFormat2(Todo)
   implicit val ItemFormat = jsonFormat3(Item)
-  implicit val UnknownTodoListFormat = jsonFormat0(UnknownTodoList)
+  implicit val TodoListOperationErrorEitherFormat = eitherCustomMarshaller[TodoListOperationError, List[Item]](StatusCodes.NotFound)
 
-  implicit val UnknownTodoListEitherFormat = eitherCustomMarshaller[UnknownTodoList, List[Item]](StatusCodes.NotFound)
+  implicit object TodoListOperationErrorFormat extends RootJsonFormat[TodoListOperationError] {
+    override def read(json: JsValue): TodoListOperationError = sys.error("Only write is available for failures")
+
+    override def write(obj: TodoListOperationError): JsValue = obj match {
+      case UnknownTodoList() => JsString("List does not exists")
+      case OperationNotSupported(opName: String) => JsString(s"Operation '$opName' is not yet supported.")
+      case _ => JsString("Operation failed bro.")
+    }
+  }
 
 }

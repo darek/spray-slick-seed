@@ -4,13 +4,13 @@ import domain.Todo
 import domain.Item
 import helper._
 import service.TodoFormats
-import spec.ApiSpec
+import spec.TestSpec
 import spray.http.StatusCodes._
 
 /**
  * Created by darek on 18.02.15.
  */
-class TodoApiSpec extends ApiSpec with TodoFormats {
+class TodoApiSpec extends TestSpec with TodoFormats {
 
   "TodoApi" should {
 
@@ -50,6 +50,13 @@ class TodoApiSpec extends ApiSpec with TodoFormats {
       Get(s"/todo/9999") ~> sealRoute(routes) ~> check {
         status must be(NotFound)
         responseAs[String] must contain("List does not exists")
+      }
+    }
+
+    "Return BadRequest with Operation not supported message when trying to delete item" in {
+      Delete("/todo/1/1") ~> sealRoute(routes) ~> check {
+        status must be(NotImplemented)
+        responseAs[String] must contain("Operation 'delete' is not yet supported.")
       }
     }
 
