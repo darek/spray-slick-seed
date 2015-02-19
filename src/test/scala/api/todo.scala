@@ -8,7 +8,7 @@ import spec.TestSpec
 import spray.http.StatusCodes._
 
 /**
- * Created by darek on 18.02.15.
+ * TodoApiSpec test class, checks if API calls return expected values
  */
 class TodoApiSpec extends TestSpec with TodoFormats {
 

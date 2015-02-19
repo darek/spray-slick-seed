@@ -1,0 +1,13 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>*** \(%logger{30}\) %msg%n</pattern>
+        </encoder>
+    </appender>
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT" />
+    </root>
+    <!-- Switch to On for slick debug log -->
+    <logger name="scala.slick" level="Off" />
+    <logger name="scala.slick.session" level="Off" />
+</configuration>

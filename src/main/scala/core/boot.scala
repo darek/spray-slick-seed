@@ -29,7 +29,7 @@ object Boot {
 }
 
 /**
- * Binds http
+ * Binds http server to given host and port
  */
 trait ServerIO {
   this: Api with BootSystem =>
@@ -38,6 +38,11 @@ trait ServerIO {
   IO(Http) ! Http.Bind(routeService, config.getString("application.server.host"), config.getInt("application.server.port"))
 }
 
+/**
+ * Main boot system:
+ * - configures database
+ * - starts top-level actor (this actor will start sub-actors that will handle Api calls)
+ */
 trait BootSystem {
   final val startupTimeout = 15
 

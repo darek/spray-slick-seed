@@ -4,7 +4,8 @@ import domain.{ Item, Todo }
 import service.TodoFormats
 
 /**
- * Created by darek on 18.02.15.
+ * Test helper for Todo API
+ * TodoFormats provides marshllers (check _Post)
  */
 class TodoHelper extends SpecHelper("/todo") with TodoFormats {
 

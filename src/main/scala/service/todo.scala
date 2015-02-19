@@ -2,14 +2,14 @@ package service
 
 import akka.actor.Actor
 import api.Marshalling
-import domain.{ Items, Todo, Item }
+import domain.{ Todo, Item }
 import spray.http.StatusCodes
 import spray.json.ProductFormats
 import core.DatabaseCfg._
 import scala.slick.driver.H2Driver.simple._
 
 /**
- * Created by darek on 17.02.15.
+ * Case classes for Akka messaging
  */
 
 case class CreateTodoList(todo: Todo)
@@ -17,6 +17,9 @@ case class GetItemsList(listId: Int)
 case class InsertItem(item: Item)
 case class DeleteItem(listId: Int, itemId: Int)
 
+/**
+ * Akka actor that will handle API calls
+ */
 class TodoActor extends Actor with TodoActions {
   def receive: Receive = {
     case CreateTodoList(todo) =>
@@ -33,6 +36,9 @@ class TodoActor extends Actor with TodoActions {
   }
 }
 
+/**
+ * Trait with bussiness logic for TodoActor
+ */
 trait TodoActions {
 
   def createTodoList(todo: Todo): Todo = {
@@ -72,10 +78,17 @@ trait TodoActions {
   }
 }
 
+/**
+ * Error case classes
+ */
 trait TodoListOperationError
 case class UnknownTodoList() extends TodoListOperationError
 case class OperationNotSupported(opName: String) extends TodoListOperationError
 
+/**
+ * Trait with defined implicits for marshalling
+ * Should be in TodoApi
+ */
 trait TodoFormats extends Marshalling with ProductFormats {
   import spray.json._
 
